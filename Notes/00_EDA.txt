@@ -1,1 +1,26 @@
+# Feature Summary (Train Data)
 
+geo_level_1_id / 2_id / 3_id - Location of building (broad to detailed)
+count_floors_pre_eq - Number of floors before earthquake
+age - Age of the building in years
+area_percentage - Size of building base (normalized)
+height_percentage - Height of building (normalized)
+
+land_surface_condition - Ground condition (n = flat, o = obstructed, t = terraced)
+foundation_type - Type of foundation (h = stone, i = wood, r = RC, u = unknown, w = other)
+roof_type - Roof type (n = thatch, q = galvanised, x = RCC)
+ground_floor_type - Ground floor type (f = mud, m = wood, v = RC, x = brick, z = other)
+other_floor_type - Upper floor type (j = wood, q = brick, s = RC, x = other)
+position - Building position (j = attached one side, o = open, s = both sides, t = corner)
+plan_configuration - Building layout (a = square, c = rectangle, d = cross, etc.)
+
+Superstructure flags (1 = yes, 0 = no):
+has_superstructure_adobe_mud, mud_mortar_stone, cement_mortar_stone, 
+mud_mortar_brick, cement_mortar_brick, timber, bamboo, rc_non_engineered, rc_engineered, stone_flag, other
+
+legal_ownership_status - Land ownership (a = private, r = rented, v = other, w = government)
+count_families - Number of families in building
+
+Secondary use flags (1 = yes, 0 = no):
+has_secondary_use_agriculture, hotel, rental, institution, school, industry,
+health_post, gov_office, use_police, other
