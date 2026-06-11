@@ -1,74 +1,62 @@
-# Richter’s Predictor – Nepal Earthquake Damage Classification
+# Richter's Predictor – Nepal Earthquake Damage Classification
 
 ## 📌 Project Overview
 
-This project predicts building damage levels from the 2015 Nepal Earthquake based on structural, geographical, and usage data. The goal is to classify buildings into one of three categories:
-- **1** = Low damage
-- **2** = Medium damage
-- **3** = High damage
+Predicting building damage levels from the 2015 Gorkha earthquake using structural,
+geographical, and usage data. Buildings are classified into:
 
-This work is part of the DrivenData competition: **[Richter’s Predictor](https://www.drivendata.org/competitions/57/nepal-earthquake/)**
+- **1** = Low damage
+- **2** = Medium damage  
+- **3** = Almost complete destruction
+
+Competition: **[Richter's Predictor – DrivenData](https://www.drivendata.org/competitions/57/nepal-earthquake/)**  
+Metric: **Micro-averaged F1 score**
 
 ---
 
 ## 📂 Dataset
 
-- `train.csv` – Includes building features and damage labels.
-- `test.csv` – Includes only features; **true labels are hidden** to prevent overfitting and leaderboard gaming.
-- Total features: 41 (train), 38 (test).
-- Target variable: `damage_grade`
-
-🛑 **Note:** Test labels are not publicly available. Evaluation is done automatically by DrivenData using a hidden test set.
+- 38 features per building: structural, geographic, ownership, secondary use
+- ~260,000 training rows
+- Target: `damage_grade` (ordinal, 1–3)
+- Test labels hidden; evaluated by DrivenData leaderboard
 
 ---
 
-## 🛠️ Preprocessing Steps
+## 🛠️ Feature Engineering
 
-- Dropped irrelevant columns (`building_id`, `superstructure_sum`, etc.).
-- Engineered:
-  - `superstructure_sum` = sum of superstructure flags
-  - `secondary_use_sum` = sum of secondary use flags
-- Encoded categorical features using `OrdinalEncoder` with unknown category handling.
-- Ensured train/test feature alignment.
+- Structural risk scores: `fragile_score`, `strong_score`, `material_risk`
+- Interaction features: `age_x_fragile`, `floors_x_height`
+- Age buckets: `is_old` (>30 years), `is_very_old` (>50 years)
+- Per-floor ratios: `height_per_floor`, `area_per_floor`, `families_per_floor`
+- Geo aggregations: mean age/floors/area grouped by `geo_level_2_id` and `geo_level_3_id`
 
 ---
 
 ## 🤖 Model
 
-- **RandomForestClassifier** (`class_weight='balanced'`)
-- 80/20 split for train/validation
-- Achieved:
-  - **Macro F1 Score: ~0.6162**
-  - **Validation accuracy: ~72%**
+**LightGBM Classifier** with 5-fold stratified CV
 
+Key parameters:
+```python
+n_estimators=2000, learning_rate=0.05, num_leaves=255,
+feature_fraction=0.8, bagging_fraction=0.8, bagging_freq=5
+```
 
----
-
-## 🚀 Future Improvements
-
-- Try XGBoost / LightGBM
-- Hyperparameter tuning
-- Cross-validation
-- Handle class imbalance with SMOTE
-- Feature engineering (e.g., floor-to-height ratio, age buckets)
+- Geo target encoding computed **inside each CV fold** to prevent data leakage
+- Final predictions averaged across all 5 fold models
 
 ---
 
-## 📁 Files
+## 📊 Results
 
-| File Name           | Description                          |
-|---------------------|--------------------------------------|
-| `train.csv`         | Training dataset                     |
-| `test.csv`          | Test dataset (labels hidden)         |
-| `submission.csv`    | Submission file for predictions      |
-| `model_training.py` | Main training + prediction pipeline  |
-| `README.md`         | Project overview                     |
-
----
-
-## 📬 Contact
-
-📧 Email: **uniquestha422@gmail.com**  
-🔗 Maintainer: Unique Shrestha (un1u3)
+| Model | OOF Micro F1 | Leaderboard |
+|-------|-------------|-------------|
+| RandomForest (baseline) | ~0.62 | ~0.62 |
+| LightGBM + label encoding | — | 0.7433 |
+| LightGBM + geo TE (leaky) | 0.7821 | 0.7398 |
+| LightGBM + geo TE (fixed) | TBD | TBD |
 
 ---
+
+## 📁 Project Structure
